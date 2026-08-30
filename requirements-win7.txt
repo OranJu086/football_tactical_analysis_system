@@ -1,0 +1,22 @@
+# Windows 7 兼容依赖清单（尽力而为，需在 Win7 上实测）
+#
+# 背景:
+#   - Windows 7 官方支持的最后一个 Python 版本是 3.8
+#   - 项目代码本身兼容 Python 3.8（无 3.9+ 语法）
+#   - 本清单给出保守上限，pip 在 Python 3.8 下会按 requires_python
+#     自动挑选兼容版本；如某包装不上，请降低对应上限再试
+
+pandas<2.1
+numpy<1.25
+matplotlib<3.9
+mplsoccer<1.6
+statsbombpy<1.13
+
+# 安装命令（Windows 7，需先装 Python 3.8.10 x64）:
+#   py -3.8 -m venv .venv
+#   .venv\Scripts\pip install -r requirements-win7.txt
+#
+# 已知风险:
+#   1. 旧版 statsbombpy 的 API 可能与本项目不同（必要时改用 requests 直连 GitHub 下载）
+#   2. Win7 上 pip 需 21.x 或更低版本
+#   3. 强烈建议先装 Python 3.8 官方安装包并勾选 "Add to PATH"

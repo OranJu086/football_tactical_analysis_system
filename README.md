@@ -9,10 +9,17 @@
 ### 1. 环境准备（只需一次）
 
 ```bash
-# 要求: macOS / Linux，Python 3.11+
+# macOS / Linux，要求 Python 3.11+
 cd FTAS
 python3.11 -m venv .venv
 .venv/bin/pip install -r requirements.txt
+```
+
+```bat
+:: Windows 10 / 11，要求 Python 3.11+（先安装 python.org 的 3.11 x64）
+cd FTAS
+py -3.11 -m venv .venv
+.venv\Scripts\pip install -r requirements.txt
 ```
 
 ### 2. 日常使用（推荐）
@@ -112,6 +119,33 @@ main.py:
 - **获取方式**：程序通过 `statsbombpy` 库自动下载原始 JSON（比赛事件、阵容、赛程）
 - **覆盖内容**：国际大赛（世界杯、欧洲杯、美洲杯等）与欧洲主要联赛（西甲、英超、德甲、欧冠等）的历史比赛
 - **许可协议**：StatsBomb 开放数据采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议，**仅限非商业用途**，使用时须注明数据来源。
+
+---
+
+---
+
+## 四、平台兼容性
+
+本项目是纯 Python 代码，**跨平台**（macOS / Linux / Windows），不依赖 macOS 专属功能。
+
+| 平台 | 支持情况 |
+|---|---|
+| macOS 10.15+ | ✅ 正常使用（开发环境） |
+| Linux | ✅ 正常使用（需 Python 3.11+） |
+| Windows 10 / 11 | ✅ 正常使用（需 Python 3.11+，见上文安装命令） |
+| Windows 7 | ⚠️ 需降级，见下文 |
+
+### Windows 7 兼容说明
+
+- **瓶颈不是本项目代码**（代码兼容 Python 3.8），而是 **Python 官方自 3.9 起不再支持 Windows 7**——Win7 最高只能安装 Python 3.8，而当前依赖链（pandas 3.x、mplsoccer 1.8 等）需要 Python 3.10+；
+- 若必须在 Win7 使用，请安装 **Python 3.8.10**，并改用旧版依赖（已提供 [requirements-win7.txt](requirements-win7.txt)）：
+  ```bat
+  py -3.8 -m venv .venv
+  .venv\Scripts\pip install -r requirements-win7.txt
+  .venv\Scripts\python analyze.py
+  ```
+- 注意：requirements-win7.txt 为"尽力而为"的保守版本上限，**需在真实 Win7 环境实测**；个别库（如旧版 statsbombpy）API 可能与本项目不同，必要时改用 `requests` 直连 StatsBomb 开放数据下载；
+- 由于 Windows 7 已于 2020 年停止官方支持，**不推荐**在新项目中兼容 Win7，建议使用 Windows 10/11。
 
 ---
 
