@@ -16,11 +16,12 @@ from download_match import build_index, load_index
 DEFAULT_TEAM = 'Barcelona'
 
 
-def main():
-    team = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_TEAM
-    comp_kw = sys.argv[2] if len(sys.argv) > 2 else ''
-    limit = int(sys.argv[3]) if len(sys.argv) > 3 else 0
-
+def query_matches(team, comp_kw='', limit=0):
+    """
+    查询某球队的比赛。
+    返回列表，每个元素: (date, match_id, competition, season, "主队 x-y 客队")
+    按日期从新到旧排序。
+    """
     index = load_index()
     if not index:
         print("比赛索引为空，先构建（需要联网，首次较慢）...")
@@ -39,6 +40,15 @@ def main():
     rows.sort(reverse=True)  # 按日期从新到旧
     if limit > 0:
         rows = rows[:limit]
+    return rows
+
+
+def main():
+    team = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_TEAM
+    comp_kw = sys.argv[2] if len(sys.argv) > 2 else ''
+    limit = int(sys.argv[3]) if len(sys.argv) > 3 else 0
+
+    rows = query_matches(team, comp_kw, limit)
 
     print(f"\n{team} 的比赛（{len(rows)} 场"
           + (f"，关键词 '{comp_kw}'" if comp_kw else "")

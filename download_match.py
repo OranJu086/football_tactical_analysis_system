@@ -96,8 +96,7 @@ def find_match(match_id):
         index = build_index(index)
     if mid not in index:
         return None
-    info = index[mid]
-    return info
+    return index[mid]
 
 
 def set_team_name(team_name):
@@ -115,14 +114,9 @@ def set_team_name(team_name):
     print(f"[config] TEAM_NAME 已设置为: {team_name}")
 
 
-def main():
-    if len(sys.argv) < 2:
-        print(__doc__)
-        sys.exit(1)
-
-    match_id = int(sys.argv[1])
-    team_name = sys.argv[2] if len(sys.argv) > 2 else DEFAULT_TEAM
-
+def download_and_prepare(match_id, team_name=None):
+    """下载指定比赛数据到 data/raw/statsbomb/ 并设置球队名。"""
+    team_name = team_name or DEFAULT_TEAM
     info = find_match(match_id)
     if info is None:
         print(f"错误: 比赛 {match_id} 不在 StatsBomb 开放数据中")
@@ -161,8 +155,17 @@ def main():
         json.dump([match], f)
 
     set_team_name(team_name)
-
     print(f"完成: {len(events)} 个事件已就绪")
+    return info
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        sys.exit(1)
+    match_id = int(sys.argv[1])
+    team_name = sys.argv[2] if len(sys.argv) > 2 else DEFAULT_TEAM
+    download_and_prepare(match_id, team_name)
     print("现在运行: .venv/bin/python main.py")
 
 
