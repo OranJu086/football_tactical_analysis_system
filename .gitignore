@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# 数据与缓存
+data/raw/
+.mplcache/
+.fontcache/
+
+# 输出
+outputs/
+
+# 处理后数据
+outputs/
+data/processed/
