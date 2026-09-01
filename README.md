@@ -64,6 +64,20 @@ py -3.11 -m venv .venv
 
 ---
 
+### 5. 网页版（Streamlit）
+
+```bash
+# 安装依赖（已包含 streamlit）
+.venv/bin/pip install -r requirements.txt
+
+# 启动网页（浏览器打开 http://localhost:8501）
+.venv/bin/streamlit run web_app.py
+```
+
+在网页中输入球队名、可选赛事关键词，选择比赛并点击「下载并分析」，即可查看传球网络图、射门分布图、活动热力图与文字报告。
+
+---
+
 ## 二、实现方式
 
 ### 架构

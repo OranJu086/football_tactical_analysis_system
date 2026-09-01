@@ -23,7 +23,7 @@ from statsbombpy import public
 
 DEFAULT_TEAM = 'Barcelona'
 CONFIG_PATH = 'src/utils/config.py'
-INDEX_PATH = 'data/raw/statsbomb/match_index.json'
+INDEX_PATH = 'data/match_index.json'
 MAX_RETRIES = 5
 
 
@@ -114,8 +114,8 @@ def set_team_name(team_name):
     print(f"[config] TEAM_NAME 已设置为: {team_name}")
 
 
-def download_and_prepare(match_id, team_name=None):
-    """下载指定比赛数据到 data/raw/statsbomb/ 并设置球队名。"""
+def download_and_prepare(match_id, team_name=None, update_config=True):
+    """下载指定比赛数据到 data/raw/statsbomb/；update_config=True 时设置球队名。"""
     team_name = team_name or DEFAULT_TEAM
     info = find_match(match_id)
     if info is None:
@@ -132,6 +132,7 @@ def download_and_prepare(match_id, team_name=None):
         print("错误: 下载比赛数据失败，请重试")
         sys.exit(1)
 
+    os.makedirs('data/raw/statsbomb', exist_ok=True)
     with open('data/raw/statsbomb/events.json', 'w') as f:
         json.dump(list(events.values()), f)
     with open('data/raw/statsbomb/lineups.json', 'w') as f:
@@ -154,7 +155,8 @@ def download_and_prepare(match_id, team_name=None):
     with open('data/raw/statsbomb/matches.json', 'w') as f:
         json.dump([match], f)
 
-    set_team_name(team_name)
+    if update_config:
+        set_team_name(team_name)
     print(f"完成: {len(events)} 个事件已就绪")
     return info
 
