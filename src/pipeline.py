@@ -12,11 +12,12 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import pandas as pd
 
-from src.data_loader.statsbomb_loader import load_events, load_matches
+from src.data_source import ensure_match_data
 from src.preprocessing.event_cleaner import clean_pass_events
 from src.analysis.pass_network import build_pass_network
 from src.analysis.shot_map import extract_shots
 from src.analysis.heatmap import extract_positions
+from src.analysis.summary import build_match_summary
 from src.visualization.pitch import create_pitch
 from src.visualization.plot_utils import draw_pass_network
 from src.visualization.shot_plot import draw_shot_map
@@ -31,59 +32,56 @@ class AnalysisResult:
     edges: pd.DataFrame
     shots: pd.DataFrame
     events: pd.DataFrame
+    summary: dict
     report_text: str
     pass_fig: Figure
     shot_fig: Figure
     heat_fig: Figure
 
 
-def build_report(matches, avg_pos, edges, shots, team_name):
-    """生成文字版比赛分析报告文本（不写文件）。"""
+def build_report(summary):
+    """基于 summary 渲染文字版比赛分析报告文本（不写文件）。
+
+    报告内容全部取自 summary，文本格式与旧版逐字一致。
+    """
     lines = []
 
     # 比赛信息
-    if matches:
-        m = matches[0]
-        home = m['home_team']['home_team_name']
-        away = m['away_team']['away_team_name']
-        score = f"{m['home_score']} - {m['away_score']}"
-        lines.append("=" * 50)
-        lines.append(f"比赛: {home} {score} {away}")
-        lines.append(f"日期: {m['match_date']}")
-        lines.append(f"赛事: {m['competition']['competition_name']} "
-                     f"{m['season']['season_name']}")
-        lines.append(f"分析球队: {team_name}")
-        lines.append("=" * 50)
+    m = summary['match']
+    lines.append("=" * 50)
+    lines.append(f"比赛: {m['home_team']} {m['home_score']} - {m['away_score']} "
+                 f"{m['away_team']}")
+    lines.append(f"日期: {m['date']}")
+    lines.append(f"赛事: {m['competition']} {m['season']}")
+    lines.append(f"分析球队: {summary['focus_team']}")
+    lines.append("=" * 50)
 
     # 传球网络
-    top = avg_pos.sort_values('pass_count', ascending=False).iloc[0]
+    players = summary['players']
+    top = players[0]
     lines.append("\n【传球网络】")
-    lines.append(f"参与传球球员数: {len(avg_pos)}")
-    lines.append(f"传球关系(边)数: {len(edges)}")
-    lines.append(f"传球最多: {top['player.name']} ({int(top['pass_count'])} 次)")
+    lines.append(f"参与传球球员数: {len(players)}")
+    lines.append(f"传球关系(边)数: {summary['team']['pass_edges']}")
+    lines.append(f"传球最多: {top['name']} ({int(top['passes'])} 次)")
     lines.append("\n各球员传球次数:")
-    for _, row in avg_pos.sort_values('pass_count', ascending=False).iterrows():
-        lines.append(f"  {row['player.name']}: {int(row['pass_count'])}")
+    for p in players:
+        lines.append(f"  {p['name']}: {int(p['passes'])}")
 
     # 射门
-    goals = int(shots['is_goal'].sum())
     lines.append("\n【射门】")
-    lines.append(f"射门次数: {len(shots)}")
-    lines.append(f"进球数: {goals}")
+    lines.append(f"射门次数: {summary['team']['shots']}")
+    lines.append(f"进球数: {summary['team']['goals']}")
 
     return "\n".join(lines) + "\n"
 
 
-def analyze_match(events_path, matches_path, team_name):
-    """执行完整分析，返回 AnalysisResult（图与报告均在内存中）。"""
-    df = load_events(events_path)
-    matches = load_matches(matches_path)
-
-    passes = clean_pass_events(df)
+def analyze_match_from_frames(events_df, matches, team_name):
+    """基于已持有的 DataFrame 与比赛元信息执行完整分析，返回 AnalysisResult。"""
+    passes = clean_pass_events(events_df)
     avg_pos, edges = build_pass_network(passes, team_name)
 
-    shots = extract_shots(df, team_name)
-    events = extract_positions(df, team_name)
+    shots = extract_shots(events_df, team_name)
+    events = extract_positions(events_df, team_name)
 
     # 传球网络图
     pitch, fig, ax = create_pitch()
@@ -100,7 +98,8 @@ def analyze_match(events_path, matches_path, team_name):
     draw_heatmap(pitch, ax, events)
     heat_fig = fig
 
-    report_text = build_report(matches, avg_pos, edges, shots, team_name)
+    summary = build_match_summary(events_df, matches, team_name)
+    report_text = build_report(summary)
 
     return AnalysisResult(
         matches=matches,
@@ -108,8 +107,15 @@ def analyze_match(events_path, matches_path, team_name):
         edges=edges,
         shots=shots,
         events=events,
+        summary=summary,
         report_text=report_text,
         pass_fig=pass_fig,
         shot_fig=shot_fig,
         heat_fig=heat_fig,
     )
+
+
+def analyze_match(match_id: int, team_name: str):
+    """按 match_id 取数（缓存命中或回源下载）后执行完整分析。"""
+    data = ensure_match_data(match_id)
+    return analyze_match_from_frames(data.events_df, data.matches, team_name)

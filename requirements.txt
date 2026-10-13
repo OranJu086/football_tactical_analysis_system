@@ -3,3 +3,12 @@ matplotlib
 mplsoccer
 statsbombpy
 streamlit
+fastapi
+uvicorn[standard]
+pydantic-settings
+python-dotenv
+openai
+slowapi
+httpx
+pytest
+pytest-asyncio

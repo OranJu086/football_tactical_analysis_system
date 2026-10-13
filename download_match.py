@@ -15,14 +15,14 @@
 """
 import json
 import os
-import re
 import sys
 import time
 
 from statsbombpy import public
 
+from src.data_source import ensure_match_data
+
 DEFAULT_TEAM = 'Barcelona'
-CONFIG_PATH = 'src/utils/config.py'
 INDEX_PATH = 'data/match_index.json'
 MAX_RETRIES = 5
 
@@ -99,23 +99,8 @@ def find_match(match_id):
     return index[mid]
 
 
-def set_team_name(team_name):
-    with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
-        content = f.read()
-    new_content, n = re.subn(
-        r"TEAM_NAME\s*=\s*'[^']*'",
-        f"TEAM_NAME = '{team_name}'",
-        content,
-    )
-    if n == 0:
-        raise RuntimeError(f"未能在 {CONFIG_PATH} 中找到 TEAM_NAME")
-    with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
-        f.write(new_content)
-    print(f"[config] TEAM_NAME 已设置为: {team_name}")
-
-
-def download_and_prepare(match_id, team_name=None, update_config=True):
-    """下载指定比赛数据到 data/raw/statsbomb/；update_config=True 时设置球队名。"""
+def download_and_prepare(match_id, team_name=None):
+    """下载指定比赛数据到按 match_id 命名的缓存目录（不再改写任何源码）。"""
     team_name = team_name or DEFAULT_TEAM
     info = find_match(match_id)
     if info is None:
@@ -125,39 +110,9 @@ def download_and_prepare(match_id, team_name=None, update_config=True):
     print(f"找到: {info['home']} {info['home_score']} - "
           f"{info['away_score']} {info['away']} ({info['date']}, {info['competition']})")
 
-    print("下载 events / lineups ...")
-    events = _fetch(public.events, match_id)
-    lineups = _fetch(public.lineups, match_id)
-    if events is None or lineups is None:
-        print("错误: 下载比赛数据失败，请重试")
-        sys.exit(1)
-
-    os.makedirs('data/raw/statsbomb', exist_ok=True)
-    with open('data/raw/statsbomb/events.json', 'w') as f:
-        json.dump(list(events.values()), f)
-    with open('data/raw/statsbomb/lineups.json', 'w') as f:
-        json.dump(list(lineups.values()), f)
-
-    # matches.json 只保留这一场（保证报告取 match[0] 正确）
-    match = _fetch(public.matches, info['competition_id'], info['season_id'])
-    match = match.get(match_id) if match else None
-    if match is None:
-        print("警告: 无法获取完整比赛信息，报告中的比赛头信息可能缺失")
-        match = {
-            'home_team': {'home_team_name': info['home']},
-            'away_team': {'away_team_name': info['away']},
-            'home_score': info['home_score'],
-            'away_score': info['away_score'],
-            'match_date': info['date'],
-            'competition': {'competition_name': info['competition']},
-            'season': {'season_name': info['season']},
-        }
-    with open('data/raw/statsbomb/matches.json', 'w') as f:
-        json.dump([match], f)
-
-    if update_config:
-        set_team_name(team_name)
-    print(f"完成: {len(events)} 个事件已就绪")
+    data = ensure_match_data(match_id, force=True)
+    print(f"完成: {len(data.events_df)} 个事件已就绪")
+    print(f"[提示] 分析球队: {team_name}（仅用于打印，不再写入配置文件）")
     return info
 
 

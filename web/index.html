@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FTAS 足球战术分析系统</title>
+  <link rel="stylesheet" href="style.css?v=5">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <p class="wordmark">FTAS<span class="wordmark-sep"></span>StatsBomb 开放数据</p>
+      <h1>足球战术分析</h1>
+      <p class="subtitle">选一支球队、挑一场比赛，看它怎么踢：传球网络、射门分布、活动热力图，外加一段中文战术解读。</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel query-panel">
+      <div class="field-row">
+        <div class="field field-suggest">
+          <label for="teamName"><span class="step">1</span>球队名称</label>
+          <div class="suggest-box">
+            <input id="teamName" type="text" value="Barcelona" placeholder="例如：Barcelona / barca / man utd"
+                   autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list"
+                   aria-controls="teamSuggestions">
+            <ul id="teamSuggestions" class="suggestions hidden" role="listbox" aria-label="球队候选"></ul>
+          </div>
+        </div>
+        <div class="field">
+          <label for="competition"><span class="step">2</span>赛事关键词（可选）</label>
+          <input id="competition" type="text" placeholder="例如：La Liga / Champions League" autocomplete="off">
+        </div>
+        <div class="field field-grow">
+          <label for="matchSelect"><span class="step">3</span>比赛</label>
+          <select id="matchSelect" disabled>
+            <option value="">先输入球队名</option>
+          </select>
+        </div>
+        <button id="queryBtn" class="btn btn-secondary" type="button">查询比赛</button>
+      </div>
+
+      <div class="field">
+        <label for="prompt"><span class="step">4</span>分析提示词</label>
+        <textarea id="prompt" rows="3">分析这场比赛的战术风格和进攻偏好，并点评核心球员</textarea>
+      </div>
+
+      <div class="action-row">
+        <button id="analyzeBtn" class="btn btn-primary" type="button">分析</button>
+        <span id="statusHint" class="status-hint"></span>
+      </div>
+    </section>
+
+    <section id="errorBox" class="error-box hidden" role="alert"></section>
+
+    <section id="emptyState" class="empty-state">
+      <p><strong>还没有分析结果</strong>先在上面选好球队和比赛，写好提示词，再点「分析」。首次分析某场比赛需要下载数据并调用模型，大约 10–40 秒。</p>
+    </section>
+
+    <section id="resultArea" class="result-area hidden">
+      <div class="result-head">
+        <span id="sourceBadge" class="badge"></span>
+        <span id="elapsed" class="elapsed"></span>
+      </div>
+
+      <div class="scoreline">
+        <p class="scoreline-meta" id="resultMeta"></p>
+        <p class="scoreline-teams">
+          <span class="team-name" id="scoreHome"></span>
+          <span class="scoreline-digits" id="scoreDigits"></span>
+          <span class="team-name" id="scoreAway"></span>
+        </p>
+        <p class="scoreline-focus" id="resultTitle"></p>
+      </div>
+
+      <div class="figures">
+        <figure class="figure-card figure-lead">
+          <figcaption>传球网络</figcaption>
+          <img id="figPassNetwork" alt="传球网络" loading="lazy">
+        </figure>
+        <figure class="figure-card">
+          <figcaption>射门分布</figcaption>
+          <img id="figShotMap" alt="射门分布" loading="lazy">
+        </figure>
+        <figure class="figure-card">
+          <figcaption>活动热力图</figcaption>
+          <img id="figHeatmap" alt="活动热力图" loading="lazy">
+        </figure>
+      </div>
+
+      <section class="panel">
+        <h3>📝 战术分析</h3>
+        <p id="narrative" class="narrative"></p>
+      </section>
+
+      <section class="panel">
+        <h3>📊 团队统计对比</h3>
+        <table class="stat-table" id="statTable">
+          <thead>
+            <tr>
+              <th>指标</th>
+              <th id="statTeamHead">主队</th>
+              <th id="statOpponentHead">对手</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h3>⭐ 核心球员（前 5）</h3>
+        <table class="stat-table" id="playerTable">
+          <thead>
+            <tr>
+              <th>姓名</th>
+              <th>综合分</th>
+              <th>传球</th>
+              <th>成功率</th>
+              <th>关键传球</th>
+              <th>射门</th>
+              <th>进球</th>
+              <th>触球</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>
+      数据来源：
+      <a href="https://statsbomb.com/" target="_blank" rel="noopener">StatsBomb</a>
+      ｜
+      <a href="https://github.com/statsbomb/open-data" target="_blank" rel="noopener">StatsBomb Open Data</a>
+      ｜
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>
+    </p>
+    <p>仅供学习与技术演示，非商业用途</p>
+    <p class="disclaimer">免责声明：分析结果不代表任何球队或数据提供方的官方观点</p>
+  </footer>
+
+  <script src="app.js?v=5"></script>
+</body>
+</html>

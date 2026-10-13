@@ -92,7 +92,7 @@ def main():
     print("  开始分析")
     print("=" * 60)
     import main as m
-    m.main()
+    m.main([mid, team])
 
     print("\n✅ 分析完成！")
     print("   图表:   outputs/figures/")

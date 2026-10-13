@@ -1,0 +1,24 @@
+# 版本控制与虚拟环境
+.git
+.venv
+
+# Python 缓存
+__pycache__
+*.py[cod]
+.mplcache
+.fontcache
+
+# 输出产物
+outputs
+
+# 运行时缓存目录（由卷挂载覆盖）
+data/cache
+
+# 本地环境文件
+.env
+
+# 开发辅助文件（镜像内不需要）
+notebooks
+.dockerignore
+Dockerfile
+docker-compose.yml

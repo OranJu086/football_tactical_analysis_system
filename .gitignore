@@ -14,3 +14,13 @@ outputs/
 # 处理后数据
 outputs/
 data/processed/
+
+# Docker 运行时
+data/cache/
+.env
+
+# macOS
+.DS_Store
+
+# 离线静态演示包（由 scripts/export_static_demo.py 生成，可随时重建）
+demo_static/

@@ -11,14 +11,11 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 from src.pipeline import analyze_match
-from download_match import DEFAULT_TEAM, download_and_prepare
+from download_match import DEFAULT_TEAM
 from list_matches import query_matches
 
 st.set_page_config(page_title="FTAS 足球战术分析", layout="wide")
 st.title("⚽ 足球战术分析系统")
-
-EVENTS_PATH = "data/raw/statsbomb/events.json"
-MATCHES_PATH = "data/raw/statsbomb/matches.json"
 
 # ① 球队名称
 team = st.text_input("① 球队名称", value=DEFAULT_TEAM)
@@ -52,15 +49,8 @@ else:
 
     if st.button("下载并分析", type="primary"):
         try:
-            with st.spinner("正在下载比赛数据..."):
-                download_and_prepare(int(match_id), team, update_config=False)
-        except (SystemExit, Exception) as e:
-            st.error(f"下载失败: {e}")
-            st.stop()
-
-        try:
-            with st.spinner("正在分析..."):
-                result = analyze_match(EVENTS_PATH, MATCHES_PATH, team)
+            with st.spinner("正在获取比赛数据并分析..."):
+                result = analyze_match(int(match_id), team)
         except (SystemExit, Exception) as e:
             st.error(f"分析失败: {e}")
             st.stop()

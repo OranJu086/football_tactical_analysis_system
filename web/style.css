@@ -1,0 +1,579 @@
+/* FTAS 前端样式：教练白板风格。
+   结构用细线而不是卡片阴影表达；三张 matplotlib 白底图直接铺在板面上；
+   红笔色只留给主按钮、步骤号和比分，绿色只表达正向数据与状态。 */
+
+:root {
+  /* 板面 */
+  --board: #fbfcfa;
+  --surface: #ffffff;
+  --grid: rgba(22, 50, 74, 0.055);
+  /* 战术笔蓝黑：文字与结构线 */
+  --ink: #16324a;
+  --ink-soft: #3d5a72;
+  --line: #d5e0e6;
+  --line-strong: #b6c6cf;
+  /* 红笔：主操作 */
+  --marker: #d2372b;
+  --marker-dark: #ab2a20;
+  /* 草皮绿：正向数据与在线状态 */
+  --grass: #1f7a5a;
+  --grass-bg: #e4f1ec;
+  --muted: #5f7280;
+  /* 缓存 / 提示 */
+  --amber: #a24a12;
+  --amber-bg: #fdf0e6;
+  --danger: #b3261e;
+  --danger-bg: #fbeae8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  background: var(--board);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 数字统一等宽对齐：战术统计里对齐比字族个性更重要 */
+.stat-table td,
+.scoreline-digits,
+.elapsed,
+.suggestion-meta {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ========== 顶部名条 ========== */
+.app-header {
+  background: var(--ink);
+  color: #fff;
+  padding: 20px 16px 18px;
+  border-bottom: 3px solid var(--marker);
+}
+
+.app-header-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.wordmark {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9fb6c6;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wordmark-sep {
+  width: 1px;
+  height: 10px;
+  background: #4a6a80;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: #c3d3de;
+  max-width: 62ch;
+}
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 22px 16px 48px;
+}
+
+/* ========== 输入板 ========== */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+/* 输入区做成战术板：极淡方格底，暗示这是可以写写画画的工作面 */
+.query-panel {
+  background-color: #fff;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.field-grow {
+  flex: 2 1 280px;
+}
+
+.field label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* 步骤号：流程本身是有序的，所以这里用序号是信息而不是装饰 */
+.step {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid var(--marker);
+  border-radius: 50%;
+  color: var(--marker);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+}
+
+.field input,
+.field select,
+.field textarea {
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 9px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--ink);
+  width: 100%;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #93a6b1;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: 2px solid var(--marker);
+  outline-offset: -1px;
+  border-color: var(--marker);
+}
+
+.field select:disabled {
+  background: #f4f7f8;
+  color: var(--muted);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.field-row .btn {
+  margin-bottom: 14px;
+}
+
+/* ========== 按钮 ========== */
+.btn {
+  font: inherit;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 10px 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.12s linear, border-color 0.12s linear;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: var(--marker);
+  color: #fff;
+  font-size: 1rem;
+  padding: 11px 28px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--marker-dark);
+}
+
+.btn-secondary {
+  background: #fff;
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: #f4f7f8;
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.status-hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.status-error {
+  color: var(--danger);
+}
+
+/* ========== 提示与空状态 ========== */
+.error-box {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid #eec4c0;
+  border-left: 3px solid var(--danger);
+  border-radius: 3px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+.empty-state {
+  border: 1px dashed var(--line-strong);
+  border-radius: 4px;
+  padding: 26px 22px;
+  margin-bottom: 18px;
+  color: var(--muted);
+  background: #fff;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+.empty-state strong {
+  display: block;
+  color: var(--ink);
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ========== 结果 ========== */
+.result-area {
+  margin-top: 4px;
+}
+
+.result-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.badge-live {
+  background: var(--grass-bg);
+  color: var(--grass);
+}
+
+.badge-cache {
+  background: var(--amber-bg);
+  color: var(--amber);
+}
+
+.elapsed {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+/* 比分牌：全套设计里唯一一处放大的地方 */
+.scoreline {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.scoreline-meta {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.scoreline-teams {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+
+.scoreline-teams .team-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.scoreline-teams .team-name.is-focus {
+  color: var(--marker);
+}
+
+.scoreline-digits {
+  font-size: 2.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.scoreline-focus {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* 三张图直接铺在板面上，不加卡片框。
+   传球网络带球员标注，给它独占一行，另外两张并列放在下面 */
+.figures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 16px;
+  margin-bottom: 24px;
+  align-items: start;
+}
+
+.figure-card {
+  min-width: 0;
+  margin: 0;
+}
+
+.figure-lead {
+  grid-column: 1 / -1;
+}
+
+.figure-card figcaption {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 10px;
+}
+
+.figure-card img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: #fff;
+}
+
+/* 主图按比例放大，但高度设上限，免得一张图占掉两屏 */
+.figure-lead img {
+  width: auto;
+  max-height: 560px;
+  margin: 0 auto;
+}
+
+.narrative {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  padding-left: 14px;
+  border-left: 2px solid var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.panel h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* ========== 表格 ========== */
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.stat-table th,
+.stat-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 10px;
+  text-align: right;
+}
+
+.stat-table th:first-child,
+.stat-table td:first-child {
+  text-align: left;
+}
+
+.stat-table thead th {
+  background: #eef3f6;
+  border-bottom: 1px solid var(--line-strong);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.stat-table tbody tr:hover {
+  background: #f7fafb;
+}
+
+/* ========== 球队名自动补全 ========== */
+/* 窄屏下 .field 会被 flex 拉高，所以定位基准是包住输入框的 .suggest-box */
+.suggest-box {
+  position: relative;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  box-shadow: 0 8px 20px rgba(22, 50, 74, 0.12);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.suggestion-note {
+  padding: 6px 10px 4px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 2px;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+  background: #eef3f6;
+}
+
+.suggestion-meta {
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.suggestion-empty {
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ========== 页脚 ========== */
+.app-footer {
+  text-align: center;
+  padding: 24px 16px 34px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+
+.app-footer p {
+  margin: 4px 0;
+}
+
+.app-footer a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.app-footer a:hover {
+  color: var(--marker);
+  border-bottom-color: var(--marker);
+}
+
+.disclaimer {
+  color: #8698a3;
+  font-size: 0.78rem;
+}
+
+/* ========== 自适应 ========== */
+@media (max-width: 860px) {
+  .figures {
+    grid-template-columns: 1fr;
+  }
+
+  .figure-lead img {
+    max-height: none;
+  }
+
+  .field-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .field-row .btn {
+    margin-bottom: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
